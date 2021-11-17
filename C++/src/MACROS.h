@@ -1,0 +1,9 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+
+#define POINT_TOLERANCE 10e-8
+#define INTERSECTION_TOLERANCE 10e-7
+
+
+#endif

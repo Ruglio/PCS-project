@@ -1,0 +1,348 @@
+@startuml
+
+enum Position {
+Begin 
+Inner 
+End 
+Outer 
+} 
+enum Type {
+NoIntersection 
+IntersectionOnLine 
+IntersectionOnSegment 
+IntersectionParallelOnLine 
+IntersectionParallelOnSegment 
+}
+package "Data Transfer Object (DTO)" <<Database>> {
+  class Point {
+    -_coordinates: Vector2d
+    -label: int
+    +Point(coordinates: Vector2d)
+    +Point(x = 0.0: const double, y = 0.0: const double )
+    +Point(point: const Point&)
+    +void SetCoordinates(x: const double, y: const double)
+    +const Vector2d& GetCoordinates() const
+    +int GetPointLabel() const
+    +void SetPointLabel(label: const int)
+    +Point& operator=(point: const Point&)
+    +Point& operator+(point: const Point&)
+    +Point& operator-(point: const Point&)
+    +friend bool operator==(p1: const Point&, p2: const Point&)
+    +friend bool operator!=(p1: const Point&, p2: const Point&)
+  }
+
+
+}
+
+package "Business Logic" {
+  interface ISegment {
+    +void SetStart(start: const Point&)
+    +const Point& GetStart() const
+    +Point& GetStart() const
+    +void SetEnd(end: const Point&)
+    +const Point& GetEnd() const
+    +Point& GetEnd()
+    +void SetSegment(start: const Point&, end: const Point&)
+    +const Vector2d ComputeTangent()
+    +const Vector2d GetTangent() const
+    +int PointOnTheRightSide(point: const Point&) const
+  }
+  
+  class Segment {
+    -_start: Point
+    -_end: Point 
+    -_tangent: Vector2d
+    +Segment(start = Point(): const Point&,end = Point(): const Point&)
+    +void SetStart(start: const Point&)
+    +const Point& GetStart() const
+    +Point& GetStart() const
+    +void SetEnd(end: const Point&)
+    +const Point& GetEnd() const
+    +Point& GetEnd()
+    +void SetSegment(start: const Point&, end: const Point&)
+    +const Vector2d ComputeTangent()
+    +const Vector2d GetTangent() const
+    +int PointOnTheRightSide(point: const Point&) const
+  }
+
+  interface IPolygon{
+    +unsigned int  GetNumberVertices() const
+    +const vector<Point>& GetVertices() const
+    +void SetVertexAtPosition(point: const Point&, position: const int&)
+    +void AppendVertex(point: const Point&)
+    +void InsertVertexAtPosition(vertex: const Point&, position: const int&)
+    +const Point& GetVertexAtPosition(position: const int&) const
+    +int NextVertexId(id: unsigned int) const
+    +const Point& GetLastVertex() const
+    +double ComputeArea() const
+    +const vector<Segment>& GetEdges() const
+    +void SetVertexLAbelAtPosition(position: const int&, label: int)
+    +int GetPointLabelAtPosition(position: const int&) const
+    +void SetVertexLabels(polygonVertices: vector<unsigned int>)
+    +void SetDefaultVertexLabels()
+    +bool PointInPolygon(point: const Point&)
+    +int IsPolygonOnThteRightSide(line: const Segment&) const
+    +void BuildUpPolygonEdges()
+  }
+  
+  class Polygon{
+    -_numberVertices: unsigned int
+    -_vertices: vector<Point>
+    -_edges: vector<Segment>
+    +Polygon()
+    +Polygon(vertices: const vector<Point>&)
+    +unsigned int  GetNumberVertices() const
+    +const vector<Point>& GetVertices() const
+    +void SetVertexAtPosition(point: const Point&, position: const int&)
+    +void AppendVertex(point: const Point&)
+    +void InsertVertexAtPosition(vertex: const Point&, position: const int&)
+    +const Point& GetVertexAtPosition(position: const int&) const
+    +int NextVertexId(id: unsigned int) const
+    +const Point& GetLastVertex() const
+    +double ComputeArea() const
+    +const vector<Segment>& GetEdges() const
+    +void SetVertexLAbelAtPosition(position: const int&, label: int)
+    +int GetPointLabelAtPosition(position: const int&) const
+    +void SetVertexLabels(polygonVertices: vector<unsigned int>)
+    +void SetDefaultVertexLabels()
+    +bool PointInPolygon(point: const Point&)
+    +int IsPolygonOnThteRightSide(line: const Segment&) const
+    +void BuildUpPolygonEdges()
+  }
+
+  interface IIntersector1D1D { 
+    
+    +void SetToleranceParallelism(const double& _tolerance) 
+    +void SetToleranceIntersection(const double& _tolerance)
+    +void SetFirstSegment(const Vector2d& origin, const Vector2d& end) 
+    +void SetSecondSegment(const Vector2d& origin, const Vector2d& end)
+    +const bool ComputeIntersection();
+    +const double& ToleranceIntersection() const 
+    +const double& ToleranceParallelism() const
+    +const Vector2d& ParametricCoordinates() 
+    +const double& FirstParametricCoordinate()
+    +const double& SecondParametricCoordinate()
+    +const Position& PositionIntersectionInFirstEdge()
+    +const Position& PositionIntersectionInSecondEdge()
+    +const Type& TypeIntersection()
+    +Vector2d IntersectionFirstParametricCoordinate(const Vector2d& origin,const Vector2d& end) 
+    +Vector2d IntersectionSecondParametricCoordinate(const Vector2d& origin,const Vector2d& end)
+}
+
+class Intersector1D1D { 
+    -positionIntersectionFirstEdge: Position
+    -positionIntersectionSecondEdge: Position 
+    -resultParametricCoordinates: Vector2d
+    -originFirstSegment: Vector2d
+    - rightHandSide: Vector2d
+    - matrixTangentVector: Matrix2d
+    +type: Type
+    +Intersector1D1D()
+    +~Intersector1D1D()
+    +void SetToleranceParallelism(const double& _tolerance) 
+    +void SetToleranceIntersection(const double& _tolerance)
+    +void SetFirstSegment(const Vector2d& origin, const Vector2d& end) 
+    +void SetSecondSegment(const Vector2d& origin, const Vector2d& end)
+    +const bool ComputeIntersection();
+    +const double& ToleranceIntersection() const 
+    +const double& ToleranceParallelism() const
+    +const Vector2d& ParametricCoordinates() 
+    +const double& FirstParametricCoordinate()
+    +const double& SecondParametricCoordinate()
+    +const Position& PositionIntersectionInFirstEdge()
+    +const Position& PositionIntersectionInSecondEdge()
+    +const Type& TypeIntersection()
+    +Vector2d IntersectionFirstParametricCoordinate(const Vector2d& origin,const Vector2d& end) 
+    +Vector2d IntersectionSecondParametricCoordinate(const Vector2d& origin,const Vector2d& end)
+}
+
+  interface IIntersectorPolygonLine {
+    -bool CheckInConicCombination(line: const Vector2d, v1: const Vector2d, v2: const Vector2d, flag: int&) const
+    -void ExtendedPolygonIfEndpointsOnEdge(numpoly: int&, firstIntersectionId: const int&, secondIntersectionId: const int&, forwardDirection: const bool&)
+    +const vector<Point>& FindIntersectionVertices()
+    +const vector<Polygon>& FindPolygons()
+    +const vector<Polygon>& GetExtendedPolygons()
+    +const vector<Point>& FindNewPoints()
+    +bool GetstartFound() const
+  }
+  
+  class IntersectorPolygonLine {
+    - _intersector: IIntersector1D1D&
+    -_polygon: IPolygon& 
+    - _line: ISegment&
+    -_intersectionVertices: vector<Point> 
+    - _newPoints: vector<Point>
+    - _extendedNewPolygons: vector<Polygon>
+    -_newPolygons: vector<Polygon> 
+    -_intersectionIdToSegmentId: vector<int> 
+    - _segmentIdToIntersectionId: vector<int>
+    -_foundVertex: vector<bool> 
+    -_startFound = false: bool
+    -_endFound = false: bool
+    -_flag: vector<int>
+    -_mmapParametricCoordinateToIntersectionPoint: multimap<double, Point> 
+    -_mmapParametricCoordinateToSegmentId: multimap<double, int> 
+    - _mapSegmentIdToParametricCoordinate: map<int, double>
+    -_mapIntersectionIdToParametricCoordinate: map<int,double> 
+    -_parallelIntersections: vector<bool> 
+    -bool CheckInConicCombination(line: const Vector2d, v1: const Vector2d, v2: const Vector2d, flag: int&) const
+    -void ExtendedPolygonIfEndpointsOnEdge(numpoly: int&, firstIntersectionId: const int&, secondIntersectionId: const int&, forwardDirection: const bool&)
+    +const vector<Point>& FindIntersectionVertices()
+    +const vector<Polygon>& FindPolygons()
+    +const vector<Polygon>& GetExtendedPolygons()
+    +const vector<Point>& FindNewPoints()
+    +bool GetstartFound() const
+  }
+    interface IReferenceElement{
+    +void computeBoundingBox(Polygon& polygon)
+    +void computeReferenceElement(Polygon& polygon)
+    +const vector<Point>& getBoundingBoxVertices() const
+    +const vector<Polygon>& getReferenceElement() const
+    +const Point& getBoundingBoxVertexAtPosition(unsigned int& i)
+    +void findBoundaryVertices() 
+    +const map<double, Point>& getMapSouthXCoordinates() const
+    +const map<double, Point>& getMapNorthXCoordinates() const
+    +const map<double, Point>& getMapEastYCoordinates() const
+    +const map<double, Point>& getMapWestYCoordinates() const
+    +void makeConforming()
+    +const vector<Polygon>& getConformingReferenceElement() const
+  }
+  
+  interface IPolygonCutter{
+    +const vector<Polygon>& cutPolygon() 
+    +const vector<Polygon>& getCuttedPolygons() const
+    +const vector<Point>& getIntersectionVertices() const
+    +const vector<Point>& getNewPoints() const 
+    +void showPolygon(filePath = "showPolygon.m": const string)
+  }
+  
+  class PolygonCutter{
+  string _file;
+    -_intersector: IIntersectorPolygonLine& 
+    -_polygon: IPolygon& _polygon;
+    -ISegment& _cutter;
+    -_cuttedPolygons: vector<Polygon>
+    -_intersectionVertices: vector<Point> 
+    -_newPoints: vector<Point>
+    +const vector<Polygon>& cutPolygon() 
+    +const vector<Polygon>& getCuttedPolygons() const
+    +const vector<Point>& getIntersectionVertices() const
+    +const vector<Point>& getNewPoints() const 
+    +void showPolygon(filePath = "showPolygon.m": const string)
+  }
+  
+  class ReferenceElement{
+    -_boundingBoxVertices: vector<Point>
+    -_referenceElementPolygons: vector<Polygon> 
+    -_conformingReferenceElementPolygons: vector<Polygon> 
+    -_boundingBox: Polygon
+    -_mapSouthXCoordinates: map<double, Point>
+    -_mapNorthXCoordinates: map<double, Point> 
+    -_mapWestYCoordinates: map<double, Point>
+    -_mapEastYCoordinates: map<double, Point>
+    -_minX: double _
+    -_minY: double 
+    -_maxX: double
+    -_maxY: double
+    +void computeBoundingBox(Polygon& polygon)
+    +void computeReferenceElement(Polygon& polygon)
+    +const vector<Point>& getBoundingBoxVertices() const
+    +const vector<Polygon>& getReferenceElement() const
+    +const Point& getBoundingBoxVertexAtPosition(unsigned int& i)
+    +void findBoundaryVertices() 
+    +const map<double, Point>& getMapSouthXCoordinates() const
+    +const map<double, Point>& getMapNorthXCoordinates() const
+    +const map<double, Point>& getMapEastYCoordinates() const
+    +const map<double, Point>& getMapWestYCoordinates() const
+    +void makeConforming()
+    +const vector<Polygon>& getConformingReferenceElement() const
+  }
+  interface IMesh{
+    +void createMesh() 
+    +ReferenceElement TranslateConformingReferenceElement(xTranslation: double,yTranslation: double)
+    +Polygon TranslatePolygon(polygon: const Polygon&,xTranslation: double,yTranslation: double)
+    +void setRectangularDomain(length: const double&,height: const double&)
+    +void setConvexDomain()
+    +bool referenceElementInConvexDomain(referenceElement: ReferenceElement&)
+    +void cutAndDiscardPolygonsOnRightSide(referenceElement: ReferenceElement&,line: segment&)
+    +double& getBoundingBoxLength()
+    +double& getBoundingBoxHeight()
+    +unsigned int& getMaxNumRefElementsPerRow()
+    +unsigned int &getMaxNumRefElementsPerColumn()
+    +const Polygon &getDomainBoundingBox()
+    +const Polygon& getDomain() const
+    +const vector<ReferenceElement>& getMeshCells() const
+    +const Polygon& getReferenceElementBoundingBox()
+    +double& getDomainBoundingBoxLength()
+    +double& getDomainBoundingBoxHeight()
+    +ReferenceElement& getReferenceElement()
+    +void showMesh(filePath = "showMesh.m": const string)
+    +~IMesh(){}
+  }
+  
+   class Mesh{
+    -_file: string
+    -_meshCells: vector<ReferenceElement>
+    -_referenceElement: ReferenceElement
+    -_conformingReferenceElementPolygons: vector<Polygon>
+    -_referenceElementBoundingBox: Polygon
+    -double _boundingBoxLength;
+    -_boundingBoxHeight: double
+    -_domain: Polygon
+    -_domainBoundingBox: Polygon
+    -_maxNumRefElementsPerRow: unsigned int 
+    -_maxNumRefElementsPerColumn: unsigned int 
+    -_domainBoundingBoxLength: double
+    -_domainBoundingBoxHeight: double
+    +void createMesh() 
+    +ReferenceElement TranslateConformingReferenceElement(xTranslation: double,yTranslation: double)
+    +Polygon TranslatePolygon(polygon: const Polygon&,xTranslation: double,yTranslation: double)
+    +void setRectangularDomain(length: const double&,height: const double&)
+    +void setConvexDomain()
+    +bool referenceElementInConvexDomain(referenceElement: ReferenceElement&)
+    +void cutAndDiscardPolygonsOnRightSide(referenceElement: ReferenceElement&,line: segment&)
+    +double& getBoundingBoxLength()
+    +double& getBoundingBoxHeight()
+    +unsigned int& getMaxNumRefElementsPerRow()
+    +unsigned int &getMaxNumRefElementsPerColumn()
+    +const Polygon &getDomainBoundingBox()
+    +const Polygon& getDomain() const
+    +const vector<ReferenceElement>& getMeshCells() const
+    +const Polygon& getReferenceElementBoundingBox()
+    +double& getDomainBoundingBoxLength()
+    +double& getDomainBoundingBoxHeight()
+    +ReferenceElement& getReferenceElement()
+    +void showMesh(filePath = "showMesh.m": const string)
+    +virtual ~IMesh(){}
+  }
+  
+}
+
+Segment *-- Point : contains
+Segment --> ISegment : implements
+Polygon *-- Point : contains
+Polygon *-- Segment : contains
+Polygon --> IPolygon : implements
+Intersector1D1D --> IIntersector1D1D: implements
+IntersectorPolygonLine *-- Point : contains
+IntersectorPolygonLine *-- Polygon : contains
+IIntersectorPolygonLine ..> ISegment : depends
+IIntersectorPolygonLine ..> IPolygon : depends
+IIntersectorPolygonLine ..> IIntersector1D1D : depends
+IntersectorPolygonLine --> IIntersectorPolygonLine: implements
+IPolygonCutter ..> ISegment: depends
+IPolygonCutter ..> IPolygon: depends
+IPolygonCutter ..> IIntersectorPolygonLine: depends
+PolygonCutter --> IPolygonCutter: implements
+PolygonCutter *-- Point: contains
+PolygonCutter *-- Polygon: contains
+ReferenceElement *-- Point : contains
+ReferenceElement *-- Polygon : contains
+ReferenceElement --> IReferenceElement: implements
+Mesh --> IMesh: implements
+Mesh *-- ReferenceElement: contains
+Mesh *-- Polygon: contains
+
+
+
+@enduml
